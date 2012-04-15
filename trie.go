@@ -30,15 +30,28 @@ func (t *Trie) Put(key string, value interface{}) {
 //
 // Complexity: O(m) worst case
 func (t *Trie) Get(key string) interface{} {
-	if len(key) < 1 {
-		return nil
+	n := t.root
+
+	for index, r := range key {
+	Start:
+		if n == nil {
+			return nil
+		}
+
+		if r < n.r {
+			n = n.small
+			goto Start
+		} else if r > n.r {
+			n = n.large
+			goto Start
+		} else if index < (len(key) - 1) {
+			n = n.equal
+		} else if n.end {
+			return n.value
+		}
 	}
 
-	node := t.getRecursive(t.root, []rune(key), 0)
-	if node == nil {
-		return nil
-	}
-	return node.value
+	return nil
 }
 
 // Wildcard Returns a sorted slice with matches for the key.
