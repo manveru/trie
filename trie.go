@@ -80,6 +80,34 @@ func (t *Trie) LongestPrefix(key string) string {
 	return key[0:length]
 }
 
+type Iterator func(key string, value interface{}) (cont bool)
+
+func (t *Trie) Each(f Iterator) {
+	n := t.root
+
+	t.iterRecursive(n, []rune{}, f)
+}
+
+func (t *Trie) iterRecursive(n *node, key []rune, f Iterator) {
+	if n == nil {
+		return
+	}
+
+	t.iterRecursive(n.small, key, f)
+
+	nKey := append(key, n.r)
+	if n.end {
+		if !f(string(nKey), n.value) {
+			return
+		}
+		t.iterRecursive(n.equal, nKey, f)
+	} else {
+		t.iterRecursive(n.equal, nKey, f)
+	}
+
+	t.iterRecursive(n.large, key, f)
+}
+
 func (t *Trie) prefixRecursive(n *node, key []rune, index int) int {
 	if n == nil || index == len(key) {
 		return 0

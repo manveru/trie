@@ -71,11 +71,11 @@ func TestEverything(t *testing.T) {
 		})
 
 		trie := &Trie{}
-		trie.Put("Hello", "World")
-		trie.Put("Hello", "World")
-		trie.Put("Hilly", "World")
-		trie.Put("Hello, brother", "World")
-		trie.Put("Hello, bob", "World")
+		trie.Put("Hello", "Oshizushi")
+		trie.Put("Hello", "Nigirizushi")
+		trie.Put("Hilly", "Narezushi")
+		trie.Put("Hello, brother", "Makizushi")
+		trie.Put("Hello, bob", "Inarizushi")
 
 		It("Matches wildcards", func() {
 			var s []string
@@ -88,6 +88,18 @@ func TestEverything(t *testing.T) {
 			Expect(trie.LongestPrefix("Hel"), ToEqual, "")
 			Expect(trie.LongestPrefix("Hello"), ToEqual, "Hello")
 			Expect(trie.LongestPrefix("Hello, bob"), ToEqual, "Hello, bob")
+		})
+
+		It("Iterates with a channel", func() {
+			keys := []string{}
+			values := []string{}
+			trie.Each(func(key string, value interface{}) bool {
+				keys = append(keys, key)
+				values = append(values, value.(string))
+				return true
+			})
+			Expect(keys, ToDeepEqual, []string{"Hello", "Hello, bob", "Hello, brother", "Hilly"})
+			Expect(values, ToDeepEqual, []string{"Nigirizushi", "Inarizushi", "Makizushi", "Narezushi"})
 		})
 	})
 }
