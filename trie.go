@@ -130,27 +130,6 @@ func (t *Trie) wildcardRecursive(n *node, key []rune, index int, prefix string) 
 	return matches
 }
 
-func (t *Trie) getRecursive(n *node, key []rune, index int) *node {
-	if n == nil {
-		return nil
-	}
-
-	r := key[index]
-	if r < n.r {
-		return t.getRecursive(n.small, key, index)
-	} else if r > n.r {
-		return t.getRecursive(n.large, key, index)
-	} else if index < (len(key) - 1) {
-		return t.getRecursive(n.equal, key, index+1)
-	}
-
-	if n.end {
-		return n
-	}
-
-	return nil
-}
-
 func (t *Trie) putRecursive(n *node, key []rune, index int, value interface{}) *node {
 	r := key[index]
 	if n == nil {
