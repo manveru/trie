@@ -3,6 +3,7 @@ package trie
 import (
 	"fmt"
 	. "github.com/sdegutis/go.bdd"
+	"math/rand"
 	"testing"
 )
 
@@ -104,26 +105,74 @@ func TestEverything(t *testing.T) {
 	})
 }
 
-func BenchmarkTrieLookup(b *testing.B) {
+func valuesForBenchmark(cb func(string, int)) {
+	rand.Seed(42)
+	for n := 0; n < 100000; n++ {
+		key := []rune{}
+		for n := 0; n < rand.Intn(1000); n++ {
+			key = append(key, rune(rand.Intn(94)+32))
+		}
+
+		cb(string(key), rand.Intn(10000))
+	}
+}
+
+func BenchmarkTrieInsert(b *testing.B) {
 	trie := &Trie{}
-	trie.Put("foo", 42)
-	trie.Put("bar", 31)
-	trie.Put("foobar", 21)
-	trie.Put("foobarraboof", 100)
+	rand.Seed(42)
 
 	b.ResetTimer()
+
+	for n := 0; n < b.N; n++ {
+		key := []rune{}
+		for n := 0; n < rand.Intn(1000); n++ {
+			key = append(key, rune(rand.Intn(94)+32))
+		}
+
+		trie.Put(string(key), rand.Intn(10000))
+	}
+}
+
+func BenchmarkMapInsert(b *testing.B) {
+	hash := map[string]int{}
+	rand.Seed(42)
+
+	b.ResetTimer()
+
+	for n := 0; n < b.N; n++ {
+		key := []rune{}
+		for n := 0; n < rand.Intn(1000); n++ {
+			key = append(key, rune(rand.Intn(94)+32))
+		}
+
+		hash[string(key)] = rand.Intn(10000)
+	}
+}
+
+func BenchmarkTrieLookup(b *testing.B) {
+	trie := &Trie{}
+	valuesForBenchmark(func(key string, value int) { trie.Put(key, value) })
+
+	b.ResetTimer()
+
 	for n := 0; n < b.N; n++ {
 		trie.Get("zoo")
 	}
 }
 
 func BenchmarkMapLookup(b *testing.B) {
-	hash := map[string]int{
-		"foo": 42, "bar": 31, "foobar": 21, "foobarraboof": 100,
+	hash := map[string]int{}
+	valuesForBenchmark(func(key string, value int) { hash[key] = value })
+	var needle string
+	for key, _ := range hash {
+		needle = key
+		break
 	}
 
 	b.ResetTimer()
+
 	for n := 0; n < b.N; n++ {
 		_ = hash["zoo"]
+		_ = hash[needle]
 	}
 }
