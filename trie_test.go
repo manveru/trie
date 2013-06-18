@@ -2,7 +2,7 @@ package trie
 
 import (
 	"fmt"
-	. "github.com/sdegutis/go.bdd"
+	. "github.com/manveru/gobdd"
 	"math/rand"
 	"testing"
 )
